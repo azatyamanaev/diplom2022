@@ -1,0 +1,79 @@
+.jobs(List.of(  PipelineJob.builder()
+                                                    .id(2461779060L)
+                                                    .name("master")
+                                                    .status("success")
+                                                    .stage("deploy")
+                                                    .webUrl("00:00:15")
+                                                    .updatedAt("3 days ago")
+                                                    .build(),
+                                            PipelineJob.builder()
+                                                    .id(2461779059L)
+                                                    .name("master")
+                                                    .status("success")
+                                                    .stage("publish")
+                                                    .webUrl("00:02:00")
+                                                    .updatedAt("3 days ago")
+                                                    .build(),
+                                            PipelineJob.builder()
+                                                    .id(2461779058L)
+                                                    .name("master")
+                                                    .status("success")
+                                                    .stage("build")
+                                                    .webUrl("00:03:07")
+                                                    .updatedAt("3 days ago")
+                                                    .build()))
+
+
+
+if (value.getName().equals("Test project")) {
+                    tableModel.rows.addAll(List.of(Pipeline.builder()
+                                    .status("success")
+                                    .duration(322.0)
+                                    .updatedAt("3 days ago")
+                                    .id(544130824)
+                                    .branchName("master")
+                                    .commit("fix tests")
+                                    .build(),
+                            Pipeline.builder()
+                                    .status("failed")
+                                    .duration(252.0)
+                                    .updatedAt("4 days ago")
+                                    .id(544122106)
+                                    .branchName("master")
+                                    .commit("add stories api")
+                                    .build()));
+                } else
+
+
+
+
+
+        EditorFactory factory = EditorFactory.getInstance();
+        Document document = factory.createDocument("Running with gitlab-runner 15.0.0 (febb2a09)\n" +
+                "  on ASUS-Runner XBiUJPEW\n" +
+                "Preparing the \"docker\" executor 00:03\n" +
+                "Using Docker executor with image ubuntu:20.04 ...\n" +
+                "Pulling docker image ubuntu:20.04 ...\n" +
+                "Using docker image sha256:53df61775e8856a464ca52d4cd9eabbf4eb3ceedbde5afecc57e417e7b7155d5 for ubuntu:20.04 with digest ubuntu@sha256:47f14534bda344d9fe6ffd6effb95eefe579f4be0d508b7445cf77f61a0e5724 ...\n" +
+                "Preparing environment 00:00\n" +
+                "Running on runner-xbiujpew-project-36471482-concurrent-0 via ASUS-TUF-GFX5...\n" +
+                "Getting source from Git repository 00:02\n" +
+                "Fetching changes with git depth set to 20...\n" +
+                "Reinitialized existing Git repository in /builds/azatyamanaev/cid-project/.git/\n" +
+                "Checking out 8215b549 as main...\n" +
+                "Skipping Git submodules setup\n" +
+                "Executing \"step_script\" stage of the job script 00:01\n" +
+                "Using docker image sha256:53df61775e8856a464ca52d4cd9eabbf4eb3ceedbde5afecc57e417e7b7155d5 for ubuntu:20.04 with digest ubuntu@sha256:47f14534bda344d9fe6ffd6effb95eefe579f4be0d508b7445cf77f61a0e5724 ...\n" +
+                "$ echo \"Deploying application...\"\n" +
+                "Deploying application...\n" +
+                "$ echo \"Application successfully deployed.\"\n" +
+                "Application successfully deployed.\n" +
+                "Cleaning up project directory and file based variables 00:00\n" +
+                "Job succeeded");
+        FileDocumentManager documentManager = FileDocumentManager.getInstance();
+        Editor editor = factory.createViewer(document, project);
+
+
+        //        manager.openTextEditor(new OpenFileDescriptor(project, documentManager.getFile(document)), true);
+
+        //        manager.openTextEditor(new OpenFileDescriptor(project, documentManager.getFile()), true);
