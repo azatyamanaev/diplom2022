@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.itis.pipelineerrorsclassifier.api.GitlabAPI;
 import ru.itis.pipelineerrorsclassifier.api.GitlabService;
 import ru.itis.pipelineerrorsclassifier.api.RestClient;
+import ru.itis.pipelineerrorsclassifier.api.TemplateGenerator;
 import ru.itis.pipelineerrorsclassifier.scheduled.PipelineMonitor;
 
 import java.io.File;
@@ -36,7 +37,7 @@ public class CommonController {
 
     private final GitlabAPI gitlabAPI;
     private final GitlabService gitlabService;
-    private final PipelineMonitor pipelineMonitor;
+    private final TemplateGenerator templateGenerator;
 
 
     @GetMapping("/file")
@@ -46,7 +47,7 @@ public class CommonController {
 
     @GetMapping("/file/yml")
     public ResponseEntity<String> getFileYml(@RequestParam Long projectId) {
-        pipelineMonitor.generateConfig(projectId);
+        templateGenerator.generateConfig(projectId);
         return ResponseEntity.ok("OK");
     }
 

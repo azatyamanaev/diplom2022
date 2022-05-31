@@ -1,12 +1,17 @@
 package ru.itis.pipelineerrorsclassifier.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.itis.pipelineerrorsclassifier.dto.Template;
 import ru.itis.pipelineerrorsclassifier.models.Config;
+import ru.itis.pipelineerrorsclassifier.models.Error;
 import ru.itis.pipelineerrorsclassifier.models.Pipeline;
 import ru.itis.pipelineerrorsclassifier.models.PipelineJob;
+import ru.itis.pipelineerrorsclassifier.repositories.ConfigRepository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,6 +28,10 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class TemplateGenerator {
+
+    private final GitlabAPI gitlabAPI;
+    private final ObjectMapper ymlMapper;
+    private final ConfigRepository configRepository;
 
 
     public Template generateTemplate(List<PipelineJob> jobs, Config config) {
@@ -90,7 +99,7 @@ public class TemplateGenerator {
                 .build();
     }
 
-    public String compare(String line, Set<String> set) {
+    public static String compare(String line, Set<String> set) {
         for (String key : set) {
             if (overlap(line, key) > 0.75) {
                 return key;
@@ -99,7 +108,7 @@ public class TemplateGenerator {
         return null;
     }
 
-    public double overlap(String s1, String s2) {
+    public static double overlap(String s1, String s2) {
         char[] c1 = s1.toCharArray();
         char[] c2 = s2.toCharArray();
         double cnt = 0;
@@ -112,5 +121,105 @@ public class TemplateGenerator {
         }
 
         return Math.min(cnt / c1.length, cnt / c2.length);
+    }
+
+    public Config generateConfig(Long projectId) {
+        String text = gitlabAPI.getFile(projectId, ".gitlab-ci.yml");
+
+        try {
+
+            Map<String, Object> map = ymlMapper.readValue(text, Map.class);
+
+            List<String> stagesList = (List<String>) map.get("stages");
+            List<JsonNode> nodes = new ArrayList<>();
+            StringBuilder builder = new StringBuilder();
+            stagesList.forEach(stage -> {
+                Map<String, Object> mm = (Map<String, Object>) map.get(stage);
+                List<String> cmds = (List<String>) mm.get("before_script");
+                if (cmds != null) cmds.forEach(cmd -> builder.append(cmd + ","));
+                cmds = (List<String>) mm.get("script");
+                if (cmds != null) cmds.forEach(cmd -> builder.append(cmd + ","));
+                cmds = (List<String>) mm.get("after_script");
+                if (cmds != null) cmds.forEach(cmd -> builder.append(cmd + ","));
+
+                nodes.add(ymlMapper.valueToTree(mm));
+            });
+            log.info("cmds {}", builder);
+            Config config = Config.builder()
+                    .text(text)
+                    .variables(ymlMapper.valueToTree(map.get("variables")))
+                    .stagesList(String.valueOf(stagesList))
+                    .stages(nodes)
+                    .commands(builder.toString())
+                    .build();
+            if (!configRepository.existsByStagesListAndCommands(config.getStagesList(), config.getCommands())) {
+                configRepository.save(config);
+            }
+            return config;
+        } catch (JsonProcessingException e) {
+            log.error("error when processing yml file");
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Error determineError(Pipeline pipeline, Config config, Template template) {
+
+        List<PipelineJob> jobs = pipeline.getJobs();
+        PipelineJob failed = PipelineJob.builder().build();
+        for (PipelineJob job : jobs) {
+            if (job.getStatus().equals("failed")) {
+                failed = job;
+                break;
+            }
+        }
+        StringBuilder builder = new StringBuilder();
+        String afterCommand = null;
+        try {
+            BufferedReader reader = Files.newBufferedReader(Path.of(failed.getLogPath()));
+            String line = reader.readLine();
+            int lineNum = 1;
+            String[] cmds = config.getCommands().split(",");
+            int ind = 0;
+
+            String current = null;
+            while (line != null) {
+                if (line.substring(2).equals(cmds[ind])) {
+                    current = cmds[ind];
+                    ind++;
+                    line = reader.readLine();
+                    lineNum++;
+                    continue;
+                } else if (current != null) {
+                    String compare = compare(line, template.getEntries().keySet());
+                    if (compare == null && !template.getEntries().containsKey(line)) {
+                        builder.append(line).append("\n");
+                        afterCommand = current;
+                    }
+                }
+                line = reader.readLine();
+                lineNum++;
+            }
+
+        } catch (IOException e) {
+            log.error("error while reading log file");
+            throw new RuntimeException(e);
+        }
+
+        String log = builder.toString();
+        Error.Type type;
+        if (log.contains("There are test failures")) {
+            type = Error.Type.UNIT_TEST_ERROR;
+        } else if (log.contains("500 Internal Server Error")) {
+            type = Error.Type.THIRD_PARTY_SERVICE_ERROR;
+        } else {
+            type = Error.Type.SCRIPT_FAILURE;
+        }
+
+        return Error.builder()
+                .stage(failed.getStage())
+                .type(type)
+                .log(log)
+                .afterCommand(afterCommand)
+                .build();
     }
 }
