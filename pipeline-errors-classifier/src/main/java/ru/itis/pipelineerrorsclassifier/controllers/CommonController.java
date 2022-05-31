@@ -123,10 +123,4 @@ public class CommonController {
         }
     }
 
-    @PostMapping("/update")
-    public ResponseEntity<String> update() {
-        gitlabService.method();
-        return ResponseEntity.ok("OK");
-    }
-
 }

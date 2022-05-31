@@ -30,16 +30,12 @@ public class Config extends AbstractModel {
     private String text;
     private String stagesList;
 
-    @Column(columnDefinition = "text")
-    private String commands;
-
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
     private JsonNode variables;
 
-    @Type(type = "jsonb")
-    @Column(columnDefinition = "jsonb")
-    private List<JsonNode> stages;
+    @OneToMany(mappedBy = "config")
+    private List<Stage> stages;
 
     @OneToMany(mappedBy = "config")
     private List<Pipeline> pipelines;

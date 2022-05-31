@@ -174,10 +174,5 @@ public class GitlabService {
         return false;
     }
 
-    public void method() {
-        List<Pipeline> pipelines = pipelineRepository.findAllByIdLessThan(484297485L);
-        pipelines.forEach(pipeline -> {
-            updatePipelineJobs(pipeline.getId());
-        });
-    }
+
 }
