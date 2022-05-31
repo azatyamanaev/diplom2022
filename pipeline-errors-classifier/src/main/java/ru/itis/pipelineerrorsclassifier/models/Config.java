@@ -1,0 +1,47 @@
+package ru.itis.pipelineerrorsclassifier.models;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
+import java.util.List;
+
+/**
+ * 30.05.2022
+ *
+ * @author Azat Yamanaev
+ */
+@Getter
+@Setter
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "configs")
+@SequenceGenerator(name = AbstractModel.GENERATOR, sequenceName = "configs_seq", allocationSize = 1)
+public class Config extends AbstractModel {
+
+    @Column(columnDefinition = "text")
+    private String text;
+    private String stagesList;
+
+    @Column(columnDefinition = "text")
+    private String commands;
+
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb")
+    private JsonNode variables;
+
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb")
+    private List<JsonNode> stages;
+
+    @OneToMany(mappedBy = "config")
+    private List<Pipeline> pipelines;
+
+}

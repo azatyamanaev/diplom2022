@@ -1,0 +1,90 @@
+
+GET https://gitlab.com/api/v4/projects/36471482/pipelines/551002940/variables
+PRIVATE-TOKEN: glpat-SRzwbtymSKQfhef8P433
+
+###
+
+GET https://gitlab.com/api/v4/projects/33346042/jobs/2348823955
+PRIVATE-TOKEN: glpat-SRzwbtymSKQfhef8P433
+
+###
+
+GET https://gitlab.com/api/v4/projects?membership=true&per_page=100
+PRIVATE-TOKEN: glpat-SRzwbtymSKQfhef8P433
+
+###
+
+GET https://gitlab.com/api/v4/projects/33346042/pipelines?page=1&per_page=50
+PRIVATE-TOKEN: glpat-SRzwbtymSKQfhef8P433
+
+###
+
+GET https://gitlab.com/api/v4/projects/36471482/repository/commits/4688af9e39ba1c1baeddc41825e1965f4315c64b/diff
+PRIVATE-TOKEN: glpat-SRzwbtymSKQfhef8P433
+
+###
+
+GET https://gitlab.com/api/v4/projects/33346042/repository/commits/b5d7b2e1264e215535faf13b60bb8689eeefa671/diff
+PRIVATE-TOKEN: glpat-SRzwbtymSKQfhef8P433
+
+###
+
+GET https://gitlab.com/api/v4/projects/33346042/repository/commits/b5d7b2e1264e215535faf13b60bb8689eeefa671/merge_requests
+PRIVATE-TOKEN: glpat-SRzwbtymSKQfhef8P433
+
+###
+
+GET https://gitlab.com/api/v4/projects/33346042/repository/files/.gitlab-ci.yml/raw
+PRIVATE-TOKEN: glpat-SRzwbtymSKQfhef8P433
+
+###
+
+GET https://gitlab.com/api/v4/projects/33346042/repository/blobs/9bae43d791355bd73748460c71d4800605e2209a/raw
+PRIVATE-TOKEN: glpat-SRzwbtymSKQfhef8P433
+
+###
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+
+POST http://localhost:8080/common/projects
+
+###
+
+POST http://localhost:8080/common/projects/33346042/pipelines
+
+###
+
+POST http://localhost:8080/common/projects/33346042/pipelines/commits?from=200&to=230
+
+###
+
+POST http://localhost:8080/common/projects/36471482/pipelines/commits?from=0&to=10
+
+###
+
+POST http://localhost:8080/common/update
+
+###
+
+GET http://localhost:8080/common/file?projectId=33346042&path=.gitlab-ci.yml
+
+###
+
+GET http://localhost:8080/common/file/yml?projectId=33346042
+
+
