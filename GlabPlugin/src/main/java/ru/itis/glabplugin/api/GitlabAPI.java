@@ -1,6 +1,7 @@
 package ru.itis.glabplugin.api;
 
 import com.intellij.openapi.diagnostic.Logger;
+import ru.itis.glabplugin.api.models.Commit;
 import ru.itis.glabplugin.api.models.Pipeline;
 import ru.itis.glabplugin.api.models.PipelineJob;
 import ru.itis.glabplugin.api.models.Project;
@@ -29,6 +30,7 @@ public class GitlabAPI {
     public static List<Project> getUserProjects() {
         List<Object> result = (List<Object>) restClient.get("https://gitlab.com/api/v4/projects", Object.class)
                 .parameter("membership", true)
+                .parameter("per_page", 50)
                 .header("PRIVATE-TOKEN", AppSettingsState.getInstance().accessToken).send().orElse(null);
         return result == null ? null : result.stream().map(x -> toProject((LinkedHashMap<String, Object>) x)).collect(Collectors.toList());
     }
@@ -46,6 +48,7 @@ public class GitlabAPI {
 
     public static List<Pipeline> getProjectPipelines(Integer projectId) {
         List<Object> result = (List<Object>) restClient.get("https://gitlab.com/api/v4/projects/" + projectId + "/pipelines", Object.class)
+                .parameter("per_page", 80)
                 .header("PRIVATE-TOKEN", AppSettingsState.getInstance().accessToken).send().orElse(null);
         return result == null ? null : result.stream().map(x -> toPipeline((LinkedHashMap<String, Object>) x)).collect(Collectors.toList());
     }
@@ -83,7 +86,18 @@ public class GitlabAPI {
                 .webUrl((String) map.get("web_url"))
                 .pipelineId(pipeline.getId())
                 .projectId(pipeline.getProjectId())
-                .retried(map.get("runner") != null)
+                .updatedAt((String) map.get("finished_at"))
+                .commit(toCommit((LinkedHashMap<String, Object>) map.get("commit")))
+                .build();
+    }
+
+    private static Commit toCommit(LinkedHashMap<String, Object> map) {
+        return Commit.builder()
+                .authorName((String) map.get("author_name"))
+                .cid((String) map.get("id"))
+                .message((String) map.get("message"))
+                .shortId((String) map.get("short_id"))
+                .title((String) map.get("title"))
                 .build();
     }
 

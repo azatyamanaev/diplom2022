@@ -9,8 +9,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ru.itis</groupId>
-    <artifactId>pipeline-errors-classifier</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>classifier</artifactId>
+    <version>1.0</version>
     <name>pipeline-errors-classifier</name>
     <description>pipeline-errors-classifier</description>
     <properties>

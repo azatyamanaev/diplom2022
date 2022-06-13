@@ -40,16 +40,19 @@ public class AppSettingsComponent {
     private JBTable table;
     private ProjectTableModel tableModel;
     private JBTextField accessToken;
+    private JBTextField classifierHost;
 
     private final GitlabAPI api = new GitlabAPI();
 
     public AppSettingsComponent() {
         tableModel = new ProjectTableModel();
         accessToken = new JBTextField(AppSettingsState.getInstance().accessToken);
+        classifierHost = new JBTextField(AppSettingsState.getInstance().classifierHost);
 
         JPanel tPanel = createTablePanel(new ArrayList<>(AppSettingsState.getInstance().projects.values()));
         panel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(new JBLabel("Access Token: "), accessToken, 1, false)
+                .addLabeledComponent(new JBLabel("Classifier host: "), classifierHost, 1, false)
                 .addComponent(tPanel)
                 .addComponent(createActionPanel())
                 .addComponentFillVertically(new JPanel(), 0)

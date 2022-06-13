@@ -4,6 +4,7 @@ import com.intellij.ui.components.JBLabel;
 import ru.itis.glabplugin.api.dto.JobDto;
 import ru.itis.glabplugin.api.dto.PipelineDto;
 import ru.itis.glabplugin.api.dto.StatusDto;
+import ru.itis.glabplugin.utils.Utils;
 
 import javax.swing.*;
 
@@ -20,28 +21,43 @@ public class StatusCell {
     private JLabel updatedAt;
 
 
-    public StatusCell(StatusDto dto) {
-        status.setText(dto.getStatus());
-//        duration.setText(String.valueOf(dto.getDuration()));
-        if (dto.getDuration() != null) {
-            int m = (int) (dto.getDuration() / 60);
-            int s = (int) (dto.getDuration() % 60);
-            duration.setText("00:0" + m + ":" + s);
+    public StatusCell(StatusDto dto, boolean pipeline) {
+        if (pipeline) {
+            status.setText(dto.getStatus());
+            if (dto.getDuration() != null) {
+                int m = (int) (dto.getDuration() / 60);
+                int s = (int) (dto.getDuration() % 60);
+                String mm = m < 10 ? "0" + m : String.valueOf(m);
+                String ss = s < 10 ? "0" + s : String.valueOf(s);
+                duration.setText("00:" + mm + ":" + ss);
+            }
+            if (dto.getUpdatedAt() != null) {
+                updatedAt.setText(Utils.timeDiff(dto.getUpdatedAt()));
+            }
+        } else {
+            if (dto.getDuration() != null) {
+                int m = (int) (dto.getDuration() / 60);
+                int s = (int) (dto.getDuration() % 60);
+                String mm = m < 10 ? "0" + m : String.valueOf(m);
+                String ss = s < 10 ? "0" + s : String.valueOf(s);
+                duration.setText("00:" + mm + ":" + ss);
+            }
+            if (dto.getUpdatedAt() != null) {
+                updatedAt.setText(Utils.timeDiff(dto.getUpdatedAt()));
+            }
         }
-        if (dto.getUpdatedAt() != null) {
-            updatedAt.setText(dto.getUpdatedAt());
-        }
+
 
     }
 
     public StatusCell(PipelineDto dto) {
-        status.setText(dto.getCommit());
-        duration.setText(dto.getId() + " " + dto.getBranch());
+        status.setText("id: " + dto.getId());
+        duration.setText("branch: " + dto.getBranch());
     }
 
     public StatusCell(JobDto dto) {
-        status.setText(dto.getId());
-        duration.setText(dto.getBranch());
+        status.setText("id: " + dto.getId());
+        duration.setText("branch: " + dto.getBranch());
     }
 
     public JPanel getMainPanel() {

@@ -27,9 +27,9 @@ public class JobTableModel extends DefaultTableModel {
         this.rows = new ArrayList<>();
         this.definitions = List.of(
                 new TableRowDefinition<>("Status", PipelineJob::getStatus),
-                new TableRowDefinition<>("Job", x -> new JobDto("#" + x.getId(), x.getName())),
+                new TableRowDefinition<>("Job", x -> new JobDto(String.valueOf(x.getId()), x.getName())),
                 new TableRowDefinition<>("Stage", PipelineJob::getStage),
-                new TableRowDefinition<>("Duration", x -> new StatusDto(x.getWebUrl(), null, x.getUpdatedAt())),
+                new TableRowDefinition<>("Duration", x -> new StatusDto(x.getWebUrl(), x.getDuration(), x.getUpdatedAt())),
                 new TableRowDefinition<>("Action", PipelineJob::getStatus));
 //                new TableRowDefinition<>("Delete", PipelineJob::isRetried));
 //                new TableRowDefinition<>("Id", PipelineJob::getId));

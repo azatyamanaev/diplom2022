@@ -8,7 +8,7 @@
     <name>GlabPlugin</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="iamanaev2001@gmail.com" url="https://www.yourcompany.com">Template Company</vendor>
+    <vendor email="iamanaev2001@gmail.com" url="https://ru.itis.kpfu">Template Company</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
@@ -17,9 +17,10 @@
     Monitor your GitLab CI pipelines in IntelliJ<br/>
     <br>
     <ul>
-        <li>Display gitlab pipeline statuses for currently checked out branches</li>
-        <li>Show notifications for new statuses</li>
-        <li>Open or create merge requests in your browser</li>
+        <li>List pipelines from your Gitlab project</li>
+        <li>Check status of pipeline or pipeline's job</li>
+        <li>Trigger, abort and retry pipeline or jobs</li>
+        <li>Get error information and possible solution for failed pipelines</li>
     </ul>
 
     ]]>
@@ -34,9 +35,6 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Pipelines" secondary="true" icon="/toolWindow/gitlab-icon.png" anchor="bottom"
                     factoryClass="ru.itis.glabplugin.ui.PipelinesToolWindowFactory" canCloseContents="true"/>
-
-<!--        <toolWindow id="Merge requests" secondary="true" anchor="bottom"-->
-<!--                    factoryClass="ru.itis.glabplugin.ui.PipelinesToolWindowFactory" canCloseContents="true"/>-->
 
         <applicationConfigurable parentId="tools" instance="ru.itis.glabplugin.config.AppSettingsConfigurable"
                                  id="ru.itis.glabplugin.config.AppSettingsConfigurable"

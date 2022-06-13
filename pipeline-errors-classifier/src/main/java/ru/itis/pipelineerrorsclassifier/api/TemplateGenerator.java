@@ -7,11 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.itis.pipelineerrorsclassifier.dto.Template;
-import ru.itis.pipelineerrorsclassifier.models.Config;
+import ru.itis.pipelineerrorsclassifier.models.*;
 import ru.itis.pipelineerrorsclassifier.models.Error;
-import ru.itis.pipelineerrorsclassifier.models.Pipeline;
-import ru.itis.pipelineerrorsclassifier.models.PipelineJob;
 import ru.itis.pipelineerrorsclassifier.repositories.ConfigRepository;
+import ru.itis.pipelineerrorsclassifier.repositories.StageRepository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,16 +31,44 @@ public class TemplateGenerator {
     private final GitlabAPI gitlabAPI;
     private final ObjectMapper ymlMapper;
     private final ConfigRepository configRepository;
+    private final StageRepository stageRepository;
 
 
-    public Template generateTemplate(List<PipelineJob> jobs, Config config) {
+    public Map<Stage, Template> teachModel(List<Pipeline> pipelines, Config config) {
+        Map<String, List<PipelineJob>> jobs = new HashMap<>();
+        pipelines.forEach(pipeline -> {
+            pipeline.getJobs().forEach(job -> {
+                if (!jobs.containsKey(job.getStage())) {
+                    jobs.put(job.getStage(), List.of(job));
+                } else {
+                    List<PipelineJob> jobList = jobs.get(job.getStage());
+                    jobList.add(job);
+                    jobs.put(job.getStage(), jobList);
+                }
+            });
+        });
+        Map<Stage, Template> dict = new HashMap<>();
+        List<Stage> stages = config.getStages();
+        jobs.forEach((key, value) -> {
+            for (Stage stage : stages) {
+                if (stage.getName().equals(key)) {
+                    dict.put(stage, generateTemplate(value, stage));
+                    break;
+                }
+            }
+        });
+        return dict;
+    }
+
+
+    public Template generateTemplate(List<PipelineJob> jobs, Stage stage) {
 
         Map<String, Template.Entry> entries = new HashMap<>();
         for (PipelineJob job : jobs) {
             try {
                 BufferedReader reader = Files.newBufferedReader(Path.of(job.getLogPath()));
                 String line = reader.readLine();
-                String[] cmds = config.getCommands().split(",");
+                String[] cmds = stage.getCommands().split(",");
                 int ind = 0;
 
                 String current = null;
@@ -95,7 +122,7 @@ public class TemplateGenerator {
 
         return Template.builder()
                 .entries(entries)
-                .config(config)
+                .stage(stage)
                 .build();
     }
 
@@ -128,12 +155,19 @@ public class TemplateGenerator {
 
         try {
 
-            Map<String, Object> map = ymlMapper.readValue(text, Map.class);
 
+            Map<String, Object> map = ymlMapper.readValue(text, Map.class);
             List<String> stagesList = (List<String>) map.get("stages");
-            List<JsonNode> nodes = new ArrayList<>();
-            StringBuilder builder = new StringBuilder();
+
+            Config config = Config.builder()
+                    .text(text)
+                    .variables(ymlMapper.valueToTree(map.get("variables")))
+                    .stagesList(String.valueOf(stagesList))
+                    .build();
+
+            List<Stage> stages = new ArrayList<>();
             stagesList.forEach(stage -> {
+                StringBuilder builder = new StringBuilder();
                 Map<String, Object> mm = (Map<String, Object>) map.get(stage);
                 List<String> cmds = (List<String>) mm.get("before_script");
                 if (cmds != null) cmds.forEach(cmd -> builder.append(cmd + ","));
@@ -141,28 +175,25 @@ public class TemplateGenerator {
                 if (cmds != null) cmds.forEach(cmd -> builder.append(cmd + ","));
                 cmds = (List<String>) mm.get("after_script");
                 if (cmds != null) cmds.forEach(cmd -> builder.append(cmd + ","));
-
-                nodes.add(ymlMapper.valueToTree(mm));
+                Stage stg = Stage.builder()
+                        .name(stage)
+                        .commands(builder.toString())
+                        .config(config)
+                        .build();
+                if (!stageRepository.existsByCommandsAndName(stg.getCommands(), stg.getName())) {
+                    stageRepository.save(stg);
+                }
+                stages.add(stg);
             });
-            log.info("cmds {}", builder);
-            Config config = Config.builder()
-                    .text(text)
-                    .variables(ymlMapper.valueToTree(map.get("variables")))
-                    .stagesList(String.valueOf(stagesList))
-                    .stages(nodes)
-                    .commands(builder.toString())
-                    .build();
-            if (!configRepository.existsByStagesListAndCommands(config.getStagesList(), config.getCommands())) {
-                configRepository.save(config);
-            }
-            return config;
+            config.setStages(stages);
+            return configRepository.save(config);
         } catch (JsonProcessingException e) {
             log.error("error when processing yml file");
             throw new RuntimeException(e);
         }
     }
 
-    public Error determineError(Pipeline pipeline, Config config, Template template) {
+    public Error determineError(Pipeline pipeline, Stage stage, Template template) {
 
         List<PipelineJob> jobs = pipeline.getJobs();
         PipelineJob failed = PipelineJob.builder().build();
@@ -178,7 +209,7 @@ public class TemplateGenerator {
             BufferedReader reader = Files.newBufferedReader(Path.of(failed.getLogPath()));
             String line = reader.readLine();
             int lineNum = 1;
-            String[] cmds = config.getCommands().split(",");
+            String[] cmds = stage.getCommands().split(",");
             int ind = 0;
 
             String current = null;

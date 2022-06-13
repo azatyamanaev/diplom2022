@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @RequiredArgsConstructor
-public class PipelineJob extends AbstractModel{
+public class PipelineJob extends AbstractModel {
 
     private Long id;
     private String name;
@@ -23,6 +23,5 @@ public class PipelineJob extends AbstractModel{
     private Integer pipelineId;
     private Integer projectId;
     private String updatedAt;
-    private boolean retried;
-
+    private Commit commit;
 }

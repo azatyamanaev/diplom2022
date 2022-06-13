@@ -24,8 +24,7 @@ public class ProjectTableModel extends DefaultTableModel {
         this.definitions = List.of(
                 new TableRowDefinition<>("ID", Project::getId),
                 new TableRowDefinition<>("Name", Project::getName),
-                new TableRowDefinition<>("Url", Project::getUrl),
-                new TableRowDefinition<>("Tracked", Project::isTracked));
+                new TableRowDefinition<>("Url", Project::getUrl));
     }
 
     @Override

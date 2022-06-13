@@ -25,14 +25,15 @@ public class PipelineTableModel extends DefaultTableModel {
         this.rows = new ArrayList<>();
         this.definitions = List.of(
                 new TableRowDefinition<>("Status", x -> new StatusDto(x.getStatus(), x.getDuration(), x.getUpdatedAt())),
-                new TableRowDefinition<>("Pipeline", x -> new PipelineDto("#" + x.getId(), String.valueOf(x.getProjectId()),
+                new TableRowDefinition<>("Pipeline", x -> new PipelineDto(String.valueOf(x.getId()), String.valueOf(x.getProjectId()),
                         x.getBranchName(), x.getCommit())),
-//                new TableRowDefinition<>("Triggerer", Pipeline::getCommit),
                 new TableRowDefinition<>("Action", Pipeline::getStatus),
                 new TableRowDefinition<>("Delete", x -> PipelineDto.builder()
                         .id(String.valueOf(x.getId()))
                         .projectId(String.valueOf(x.getProjectId()))
-                        .build()));
+                        .build()),
+                new TableRowDefinition<>("Url", Pipeline::getWebUrl),
+                new TableRowDefinition<>("Error", Pipeline::getStatus));
     }
 
     @Override

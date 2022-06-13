@@ -55,6 +55,7 @@ public class AppSettingsConfigurable implements Configurable {
     public void apply() {
         AppSettingsState settings = AppSettingsState.getInstance();
         settings.accessToken = settingsComponent.getAccessToken().getText();
+        settings.classifierHost = settingsComponent.getClassifierHost().getText();
         settings.projects = (LinkedHashMap<Integer, Project>) Utils.map(GitlabAPI.getUserProjects());
         ProjectTableModel.updateTable(settingsComponent.getTableModel(), new ArrayList<>(settings.projects.values()));
     }
@@ -63,6 +64,7 @@ public class AppSettingsConfigurable implements Configurable {
     public void reset() {
         AppSettingsState settings = AppSettingsState.getInstance();
         settingsComponent.getAccessToken().setText(settings.accessToken);
+        settingsComponent.getClassifierHost().setText(settings.classifierHost);
         settings.projects = (LinkedHashMap<Integer, Project>) Utils.map(GitlabAPI.getUserProjects());
         ProjectTableModel.updateTable(settingsComponent.getTableModel(), new ArrayList<>(settings.projects.values()));
     }

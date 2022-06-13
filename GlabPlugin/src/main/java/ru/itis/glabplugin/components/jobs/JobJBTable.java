@@ -39,10 +39,6 @@ public class JobJBTable extends JBTable {
                 return duraCellRenderer();
             case 4:
                 return actionCellRenderer();
-//            case 5:
-//                return deleteCellRenderer();
-//            case 6:
-//                return stringCellRenderer();
         }
         return cellRenderer;
     }
@@ -62,11 +58,6 @@ public class JobJBTable extends JBTable {
             case 4:
                 column.setPreferredWidth(50);
                 break;
-//            case 5:
-//                break;
-//            case 6:
-//                column.setPreferredWidth(50);
-//                break;
         }
         return component;
     }
@@ -83,7 +74,7 @@ public class JobJBTable extends JBTable {
         return (table, value, isSelected, hasFocus, row, column) -> {
             StatusDto dto = (StatusDto) value;
 
-            return new StatusCell(dto).getMainPanel();
+            return new StatusCell(dto, false).getMainPanel();
         };
     }
 
@@ -105,8 +96,8 @@ public class JobJBTable extends JBTable {
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 String status = (String) value;
                 JBLabel action;
-                if (status.equals("success") || status.equals("failed")
-                        || status.equals("manual") || status.equals("canceled")) {
+                if (status.equals("success") || status.equals("failed") || status.equals("manual")
+                        || status.equals("canceled") || status.equals("skipped")) {
                     action = new JBLabel(AllIcons.Actions.Refresh);
                     action.setToolTipText("Retry job");
                 } else {

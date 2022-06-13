@@ -28,21 +28,17 @@ public class BackgroundService {
 
     private static final int INITIAL_DELAY = 0;
     private static final int UPDATE_DELAY = 30;
-//    final GitService gitService;
-//    final NotifierService notifierService;
 
     private boolean isActive = false;
     private boolean isRunning = false;
     private final Runnable backgroundTask;
     private ScheduledFuture<?> scheduledFuture;
     private final Project project;
-//    private final GitlabService gitlabService;
     private final MessageBus messageBus;
 
     public BackgroundService(Project project) {
         this.project = project;
 
-//        gitlabService = project.getService(GitlabService.class);
         messageBus = project.getMessageBus();
 
         backgroundTask = () -> {
@@ -60,18 +56,6 @@ public class BackgroundService {
             scheduledFuture = AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(backgroundTask, 5, UPDATE_DELAY, TimeUnit.SECONDS);
             isActive = true;
         });
-//        project.getMessageBus().connect().subscribe(ConfigChangedListener.CONFIG_CHANGED, () -> {
-//            if (!PipelineViewerConfigProject.getInstance(project).isEnabled()) {
-//                logger.debug("Retrieved CONFIG_CHANGED event. Project is disabled. Stopping background task if needed");
-//                stopBackgroundTask();
-//            } else {
-//                logger.debug("Retrieved CONFIG_CHANGED event. Project is enabled. Starting background task if needed");
-//            }
-//        });
-
-
-//        gitService = project.getService(GitService.class);
-//        notifierService = project.getService(NotifierService.class);
     }
 
     public synchronized void update(Project project, boolean triggeredByUser) {
@@ -84,7 +68,7 @@ public class BackgroundService {
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 try {
                     getUpdateRunnable(triggeredByUser).run();
-                    //For some stupid reason the progress bar is not removed if the process returns too quickly
+
                     if (stopwatch.elapsed(TimeUnit.MILLISECONDS) < 1000) {
                         try {
                             Thread.sleep(500);
@@ -108,7 +92,7 @@ public class BackgroundService {
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 try {
                     runnable.run();
-                    //For some stupid reason the progress bar is not removed if the process returns too quickly
+
                     if (stopwatch.elapsed(TimeUnit.MILLISECONDS) < 1000) {
                         try {
                             Thread.sleep(500);
@@ -133,21 +117,9 @@ public class BackgroundService {
             isRunning = true;
             try {
                 logger.debug("Starting IntelliJ background task", (triggeredByUser ? " triggered by user" : ""));
-//                gitlabService.checkForUnmappedRemotes(triggeredByUser);
-//                gitlabService.updatePipelineInfos(triggeredByUser);
-//                gitlabService.updateMergeRequests();
-//                if (!messageBus.isDisposed()) {
-//                    messageBus.syncPublisher(ReloadListener.RELOAD).reload(gitlabService.getPipelineInfos());
-//                }
                 GitlabAPI.getProjectPipelines(33346042);
                 logger.debug("Finished IntelliJ background task");
             }
-//            catch (IOException e) {
-//                logger.info("Connection error: " + e.getMessage());
-//                if (ConfigProvider.getInstance().isShowConnectionErrorNotifications()) {
-//                    notifierService.showError("Unable to connect to gitlab: " + e);
-//                }
-//            }
             finally {
                 isRunning = false;
             }
@@ -170,7 +142,6 @@ public class BackgroundService {
             logger.debug("Background task already stopped");
         }
         if (scheduledFuture == null) {
-            //Should not happen but can happen... (don't know when)
             return;
         }
         logger.debug("Stopping background task");

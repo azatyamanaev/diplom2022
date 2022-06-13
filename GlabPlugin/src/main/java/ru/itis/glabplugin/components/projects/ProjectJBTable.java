@@ -27,7 +27,7 @@ public class ProjectJBTable extends JBTable {
     public TableCellRenderer getCellRenderer(int row, int column) {
         TableCellRenderer cellRenderer = super.getCellRenderer(row, column);
         if (column < 3) return stringCellRenderer();
-        if (column == 3) return checkboxCellRenderer();
+//        if (column == 3) return checkboxCellRenderer();
         return cellRenderer;
     }
 
@@ -36,8 +36,8 @@ public class ProjectJBTable extends JBTable {
     public Component prepareRenderer(@NotNull TableCellRenderer renderer, int rowIndex, int columnIndex) {
         Component component = super.prepareRenderer(renderer, rowIndex, columnIndex);
         TableColumn column = getColumnModel().getColumn(columnIndex);
-        if (columnIndex < 3) column.setPreferredWidth(200);
-        if (columnIndex == 3) column.setPreferredWidth(80);
+        if (columnIndex < 3) column.setPreferredWidth(220);
+//        if (columnIndex == 3) column.setPreferredWidth(80);
         return component;
     }
 

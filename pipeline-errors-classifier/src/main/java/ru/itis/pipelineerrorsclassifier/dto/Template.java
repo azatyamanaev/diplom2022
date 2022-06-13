@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import ru.itis.pipelineerrorsclassifier.models.Config;
+import ru.itis.pipelineerrorsclassifier.models.Stage;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class Template {
 
-    private Config config;
+    private Stage stage;
     private Map<String, Entry> entries;
 
 

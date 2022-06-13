@@ -29,6 +29,5 @@ public class StartupInitialization implements StartupActivity {
         BackgroundService service = project.getService(BackgroundService.class);
         logger.debug("Finished startup initialization");
 
-
     }
 }

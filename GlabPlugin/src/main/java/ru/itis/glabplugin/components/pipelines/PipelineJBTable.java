@@ -37,6 +37,10 @@ public class PipelineJBTable extends JBTable {
                 return actionCellRenderer();
             case 3:
                 return deleteCellRenderer();
+            case 4:
+                return linkCellRenderer();
+            case 5:
+                return errorCellRenderer();
         }
         return cellRenderer;
     }
@@ -55,6 +59,8 @@ public class PipelineJBTable extends JBTable {
                 break;
             case 2:
             case 3:
+            case 4:
+            case 5:
                 column.setPreferredWidth(50);
                 break;
         }
@@ -77,15 +83,7 @@ public class PipelineJBTable extends JBTable {
         return (table, value, isSelected, hasFocus, row, column) -> {
             StatusDto statusDto = (StatusDto) value;
 
-            JPanel panel = new JPanel();
-            JBLabel status = new JBLabel(statusDto.getStatus());
-            JBLabel duration = new JBLabel(String.valueOf(statusDto.getDuration()), new ImageIcon("/icons/time.png"), SwingConstants.LEADING);
-            JBLabel updatedAt = new JBLabel(statusDto.getUpdatedAt(), new ImageIcon("/icons/calendar.png"), SwingConstants.LEADING);
-            panel.add(status);
-            panel.add(duration);
-            panel.add(updatedAt);
-
-            return new StatusCell(statusDto).getMainPanel();
+            return new StatusCell(statusDto, true).getMainPanel();
         };
     }
 
@@ -118,16 +116,37 @@ public class PipelineJBTable extends JBTable {
     }
 
     private TableCellRenderer deleteCellRenderer() {
-        return new TableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                String status = String.valueOf(value);
-                JBLabel action = new JBLabel(AllIcons.Actions.GC);
-                action.setPreferredSize(new Dimension(45, 30));
-                action.setEnabled(true);
-                action.setToolTipText("Delete pipeline");
-                return action;
-            }
+        return (table, value, isSelected, hasFocus, row, column) -> {
+            String status = String.valueOf(value);
+            JBLabel action = new JBLabel(AllIcons.Actions.GC);
+            action.setPreferredSize(new Dimension(45, 30));
+            action.setEnabled(true);
+            action.setToolTipText("Delete pipeline");
+            return action;
+        };
+    }
+
+
+
+    private TableCellRenderer linkCellRenderer() {
+        return (table, value, isSelected, hasFocus, row, column) -> {
+            String link = String.valueOf(value);
+            JBLabel action = new JBLabel(AllIcons.Ide.External_link_arrow);
+            action.setPreferredSize(new Dimension(45, 30));
+            action.setEnabled(true);
+            action.setToolTipText("Open pipeline in browser");
+            return action;
+        };
+    }
+
+    private TableCellRenderer errorCellRenderer() {
+        return (table, value, isSelected, hasFocus, row, column) -> {
+            String status = String.valueOf(value);
+            JBLabel action = new JBLabel(AllIcons.Debugger.Question_badge);
+            action.setPreferredSize(new Dimension(45, 30));
+            action.setEnabled(true);
+            action.setToolTipText("View pipeline error info");
+            return action;
         };
     }
 }

@@ -41,6 +41,7 @@ import ru.itis.glabplugin.components.jobs.JobTableModel;
 import ru.itis.glabplugin.components.pipelines.PipelineJBTable;
 import ru.itis.glabplugin.components.pipelines.PipelineTableModel;
 import ru.itis.glabplugin.config.AppSettingsState;
+import ru.itis.glabplugin.utils.UrlOpener;
 import ru.itis.glabplugin.utils.Utils;
 
 import javax.swing.*;
@@ -52,6 +53,8 @@ import java.nio.channels.Pipe;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * 16.05.2022
@@ -131,7 +134,7 @@ public class GToolWindow {
                         if (pipelines != null && pipelines.size() > 0) {
                             map.put(id, (LinkedHashMap<Integer, Pipeline>) Utils.map(pipelines));
                             tableModel.rows.clear();
-                            tableModel.rows.addAll(map.get(id).values());
+                            tableModel.rows.addAll(pipelines);
                         }
 
                     }
@@ -144,7 +147,23 @@ public class GToolWindow {
         pipelineStatus.addItem("All");
         pipelineStatus.addItem("Success");
         pipelineStatus.addItem("Failed");
-        pipelineStatus.addItem("Pending");
+        pipelineStatus.addItem("Canceled");
+        pipelineStatus.addItem("Skipped");
+        pipelineStatus.addItemListener(e -> {
+            String status = (String) e.getItem();
+            Project proj = (Project) repos.getSelectedItem();
+            List<Pipeline> pipelines;
+            if (status.equals("All")) {
+                pipelines = new ArrayList<>(AppSettingsState.getInstance().pipelines.get(proj.getId()).values());
+            } else {
+                pipelines= AppSettingsState.getInstance().pipelines.get(proj.getId()).values()
+                        .stream().filter(pipe -> pipe.getStatus().equals(status.toLowerCase(Locale.ROOT)))
+                        .collect(Collectors.toList());
+            }
+            tableModel.rows.clear();
+            tableModel.rows.addAll(pipelines);
+        });
+
 
         gridCon.setAnchor(GridConstraints.ANCHOR_WEST);
         actionPanel.add(repos, gridCon, 0);
@@ -214,7 +233,7 @@ public class GToolWindow {
         AnActionButton refreshActionButton = new AnActionButton("Refresh", AllIcons.Actions.Refresh) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-               updateJobs(jobTableModel, pipeline);
+                updateJobs(jobTableModel, pipeline);
 
             }
 
@@ -369,6 +388,12 @@ public class GToolWindow {
                                         tableModel.rows.remove(row);
                                     });
                             break;
+                        case 4:
+                            UrlOpener.openUrl(pipeline.getWebUrl());
+                            break;
+                        case 5:
+
+                            break;
                     }
                 }
             }
@@ -401,34 +426,10 @@ public class GToolWindow {
                     project.setTracked(false);
                     state.projects.put(id, project);
                 });
-        state.projects.keySet().stream().filter(id -> !map.containsKey(id) || map.get(id).size() == 0)
-                .forEach(id -> {
-                    ru.itis.glabplugin.api.models.Project project = state.projects.get(id);
-                    project.setTracked(false);
-                    state.projects.put(id, project);
-                });
 
-        state.pipelineJobs = new LinkedHashMap<>();
-    }
-
-    private static class SelectedCell {
-        private final int rowIndex;
-        private final int columnIndex;
-        private final Object cellContent;
-
-        public SelectedCell(int rowIndex, int columnIndex, Object cellContent) {
-            this.rowIndex = rowIndex;
-            this.columnIndex = columnIndex;
-            this.cellContent = cellContent;
+        if (state.pipelineJobs == null) {
+            state.pipelineJobs = new LinkedHashMap<>();
         }
-
     }
 
-    private SelectedCell getSelectedTableCell(Point pointClicked) {
-        int viewRow = pipelineTable.getSelectedRow();
-        int selectedColumn = pipelineTable.columnAtPoint(pointClicked);
-        int modelRow = pipelineTable.convertRowIndexToModel(viewRow);
-
-        return new SelectedCell(modelRow, selectedColumn, tableModel.getValueAt(modelRow, selectedColumn));
-    }
 }
