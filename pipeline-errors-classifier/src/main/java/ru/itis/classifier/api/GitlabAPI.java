@@ -59,7 +59,7 @@ public class GitlabAPI {
 
     public String getJobLog(Long projectId, Long jobId) {
         String res = restClient.get("https://gitlab.com/api/v4/projects/" + projectId + "/jobs/" + jobId + "/trace", String.class)
-                .header("PRIVATE-TOKEN", "glpat-SRzwbtymSKQfhef8P433").getString();
+                .header("PRIVATE-TOKEN", settings.getToken()).getString();
         if (res == null) return null;
         res = res.replace("\u001B", "")
                 .replace("[0K", "")
@@ -72,25 +72,25 @@ public class GitlabAPI {
 
     public Commit getCommit(Long projectId, String commit) {
         Object result = restClient.get("https://gitlab.com/api/v4/projects/" + projectId + "/repository/commits/" + commit,
-                Object.class).header("PRIVATE-TOKEN", "glpat-SRzwbtymSKQfhef8P433").send().orElse(null);
+                Object.class).header("PRIVATE-TOKEN", settings.getToken()).send().orElse(null);
         return result == null ? null : mapper.toCommit((LinkedHashMap<String, Object>) result);
     }
 
     public List<Diff> getCommitDiff(Long projectId, String commit) {
         List<Object> result = (List<Object>) restClient.get("https://gitlab.com/api/v4/projects/" + projectId + "/repository/commits/" + commit + "/diff",
-                Object.class).header("PRIVATE-TOKEN", "glpat-SRzwbtymSKQfhef8P433").send().orElse(null);
+                Object.class).header("PRIVATE-TOKEN", settings.getToken()).send().orElse(null);
         return result == null ? null : result.stream().map(x -> mapper.toDiff((LinkedHashMap<String, Object>) x)).collect(Collectors.toList());
     }
 
     public List<MergeRequest> getCommitMergeRequests(Long projectId, String commit) {
         List<Object> result = (List<Object>) restClient.get("https://gitlab.com/api/v4/projects/" + projectId + "/repository/commits/" + commit + "/merge_requests",
-                Object.class).header("PRIVATE-TOKEN", "glpat-SRzwbtymSKQfhef8P433").send().orElse(null);
+                Object.class).header("PRIVATE-TOKEN", settings.getToken()).send().orElse(null);
         return result == null ? null : result.stream().map(x -> mapper.toMergeRequest((LinkedHashMap<String, Object>) x)).collect(Collectors.toList());
     }
 
     public String getFile(Long projectId, String path) {
         return restClient.get("https://gitlab.com/api/v4/projects/" + projectId + "/repository/files/" + path + "/raw",
-                String.class).header("PRIVATE-TOKEN", "glpat-SRzwbtymSKQfhef8P433").getString();
+                String.class).header("PRIVATE-TOKEN", settings.getToken()).getString();
     }
 
 }

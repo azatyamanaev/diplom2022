@@ -3,6 +3,8 @@ package ru.itis.classifier.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import ru.itis.classifier.models.template.Config;
+import ru.itis.classifier.models.template.Error;
 
 import javax.persistence.*;
 import java.util.List;

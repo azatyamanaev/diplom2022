@@ -1,7 +1,7 @@
 package ru.itis.classifier.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.itis.classifier.models.Config;
+import ru.itis.classifier.models.template.Config;
 
 /**
  * 30.05.2022

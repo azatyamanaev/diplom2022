@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.itis.classifier.api.GitlabAPI;
-import ru.itis.classifier.api.GitlabService;
+import ru.itis.classifier.api.Service;
 import ru.itis.classifier.api.TemplateGenerator;
 
 import java.io.FileWriter;
@@ -30,9 +30,10 @@ public class CommonController {
     private static final String PIPELINES = "/pipelines";
     private static final String JOBS = "/jobs";
     private static final String COMMITS = "/commits";
+    private static final String TEMPLATES = "/templates";
 
     private final GitlabAPI gitlabAPI;
-    private final GitlabService gitlabService;
+    private final Service service;
     private final TemplateGenerator templateGenerator;
 
 
@@ -77,13 +78,13 @@ public class CommonController {
 
     @PostMapping(PROJECTS)
     public ResponseEntity<String> updateProjects() {
-        gitlabService.updateProjects();
+        service.updateProjects();
         return ResponseEntity.ok("OK");
     }
 
     @PostMapping(PROJECTS + ID + PIPELINES)
     public ResponseEntity<String> updatePipelines(@PathVariable("id") Long projectId) {
-        boolean res = gitlabService.updateProjectPipelines(projectId);
+        boolean res = service.updateProjectPipelines(projectId);
         if (res) {
             return ResponseEntity.ok("OK");
         } else {
@@ -93,7 +94,7 @@ public class CommonController {
 
     @PostMapping(PROJECTS + ID + PIPELINES + JOBS)
     public ResponseEntity<String> updateProjectPipelinesJobs(@PathVariable("id") Long projectId) {
-        boolean res = gitlabService.updateProjectPipelinesJobs(projectId);
+        boolean res = service.updateProjectPipelinesJobs(projectId);
         if (res) {
             return ResponseEntity.ok("OK");
         } else {
@@ -104,7 +105,7 @@ public class CommonController {
     @PostMapping(PROJECTS + ID + PIPELINES + COMMITS)
     public ResponseEntity<String> updateProjectPipelinesDiffs(@PathVariable("id") Long projectId,
                                                               @RequestParam int from, @RequestParam int to) {
-        boolean res = gitlabService.updateProjectPipelinesDiffs(projectId, from, to);
+        boolean res = service.updateProjectPipelinesDiffs(projectId, from, to);
         if (res) {
             return ResponseEntity.ok("OK");
         } else {
@@ -116,12 +117,18 @@ public class CommonController {
 
     @PostMapping(PIPELINES + ID + JOBS)
     public ResponseEntity<String> updatePipelineJobs(@PathVariable("id") Long pipelineId) {
-        boolean res = gitlabService.updatePipelineJobs(pipelineId);
+        boolean res = service.updatePipelineJobs(pipelineId);
         if (res) {
             return ResponseEntity.ok("OK");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("pipeline not found");
         }
+    }
+
+    @PostMapping(PROJECTS + ID + TEMPLATES)
+    public ResponseEntity<String> generateTemplates(@PathVariable("id") Long projectId) {
+        service.generateTemplates(projectId);
+        return ResponseEntity.ok("OK");
     }
 
 }

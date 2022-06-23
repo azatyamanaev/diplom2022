@@ -4,8 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import ru.itis.classifier.models.Stage;
+import ru.itis.classifier.models.template.Stage;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +27,8 @@ public class Template {
 
     @Data
     @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Entry {
 
         private String string;
@@ -33,10 +36,12 @@ public class Template {
         private double all;
         private String command;
         private Set<Integer> number;
+        private double frequency;
 
 
         public double getFrequency() {
-            return  count / all;
+            this.frequency = count / all;
+            return frequency;
         }
     }
 }

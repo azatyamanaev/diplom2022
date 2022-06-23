@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.itis.classifier.api.GitlabAPI;
-import ru.itis.classifier.api.GitlabService;
+import ru.itis.classifier.api.Service;
 import ru.itis.classifier.api.TemplateGenerator;
 import ru.itis.classifier.models.*;
+import ru.itis.classifier.models.template.Config;
 import ru.itis.classifier.repositories.PipelineRepository;
 import ru.itis.classifier.repositories.ProjectRepository;
 
@@ -24,7 +25,7 @@ public class PipelineMonitor {
 
     private static final long[] projects = new long[]{36471482L, 33346042L};
     private final GitlabAPI gitlabAPI;
-    private final GitlabService gitlabService;
+    private final Service service;
     private final ProjectRepository projectRepository;
     private final PipelineRepository pipelineRepository;
     private final TemplateGenerator templateGenerator;
@@ -45,8 +46,8 @@ public class PipelineMonitor {
                             .filter(pipeline -> !pipeline.getStatus().equals("running"))
                             .forEach(pipeline -> {
                                 Pipeline saved = pipelineRepository.save(pipeline);
-                                gitlabService.updatePipelineJobs(pipeline.getId());
-                                gitlabService.updatePipelineDiff(pipeline.getId());
+                                service.updatePipelineJobs(pipeline.getId());
+                                service.updatePipelineDiff(pipeline.getId());
                                 saved = pipelineRepository.findById(saved.getId()).orElse(null);
                                 if (pipeline.getStatus().equals("failed")) {
                                     Config config = templateGenerator.generateConfig(id);

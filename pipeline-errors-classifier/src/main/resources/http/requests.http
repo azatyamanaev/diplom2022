@@ -52,20 +52,38 @@ PRIVATE-TOKEN: glpat-SRzwbtymSKQfhef8P433
 
 
 
+# 554929051
 
+#558581253 558216268 556662437 541787795
 
+###
 
+GET http://localhost:8080/pipelines/errors?id=558581253
 
+###
 
+GET http://localhost:8080/pipelines/errors/558216268
 
+###
+
+GET http://localhost:8080/pipelines/templates?stage=build
 
 ###
 
 POST http://localhost:8080/common/projects
 
+
+###
+
+POST http://localhost:8080/common/projects/33346042/templates
+
 ###
 
 POST http://localhost:8080/common/projects/33346042/pipelines
+
+###
+
+POST http://localhost:8080/common/projects/33346042/pipelines/jobs
 
 ###
 
