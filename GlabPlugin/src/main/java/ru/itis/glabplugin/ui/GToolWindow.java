@@ -1,30 +1,14 @@
 package ru.itis.glabplugin.ui;
 
-import com.intellij.codeInsight.intention.impl.QuickEditAction;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.fileChooser.FileSystemTree;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.psi.AbstractFileViewProvider;
-import com.intellij.psi.FileViewProviderFactory;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.impl.source.PsiPlainTextFileImpl;
 import com.intellij.ui.AnActionButton;
-import com.intellij.ui.EditorTextField;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
@@ -49,7 +33,6 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.nio.channels.Pipe;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -156,7 +139,7 @@ public class GToolWindow {
             if (status.equals("All")) {
                 pipelines = new ArrayList<>(AppSettingsState.getInstance().pipelines.get(proj.getId()).values());
             } else {
-                pipelines= AppSettingsState.getInstance().pipelines.get(proj.getId()).values()
+                pipelines = AppSettingsState.getInstance().pipelines.get(proj.getId()).values()
                         .stream().filter(pipe -> pipe.getStatus().equals(status.toLowerCase(Locale.ROOT)))
                         .collect(Collectors.toList());
             }
@@ -264,7 +247,7 @@ public class GToolWindow {
                         case 1:
                             String path = GitlabAPI.writeLog(job.getProjectId(), job.getPipelineId(), job.getId(), job.getStage());
 
-                            openEditor(project, path);
+//                            openEditor(project, path);
                             break;
                         case 4:
                             String s = (String) jobTable.getValueAt(row, column);
@@ -392,7 +375,15 @@ public class GToolWindow {
                             UrlOpener.openUrl(pipeline.getWebUrl());
                             break;
                         case 5:
+                            String message = GitlabAPI.getPipelineError(pipeline.getId());
+                            if (message == null) {
+                                message = "There is no error info about this pipeline";
+                            }
+                            JTextField field = new JTextField(message);
+                            field.setPreferredSize(new Dimension(800, 800));
 
+                            ErrorDialog dialog = new ErrorDialog(pipeline.getId(), message);
+                            dialog.show();
                             break;
                     }
                 }

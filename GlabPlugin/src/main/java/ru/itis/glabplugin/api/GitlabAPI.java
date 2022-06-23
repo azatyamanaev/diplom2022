@@ -1,6 +1,10 @@
 package ru.itis.glabplugin.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.diagnostic.Logger;
+import ru.itis.glabplugin.api.dto.ErrorDto;
 import ru.itis.glabplugin.api.models.Commit;
 import ru.itis.glabplugin.api.models.Pipeline;
 import ru.itis.glabplugin.api.models.PipelineJob;
@@ -14,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -34,7 +39,6 @@ public class GitlabAPI {
                 .header("PRIVATE-TOKEN", AppSettingsState.getInstance().accessToken).send().orElse(null);
         return result == null ? null : result.stream().map(x -> toProject((LinkedHashMap<String, Object>) x)).collect(Collectors.toList());
     }
-
 
     private static Project toProject(LinkedHashMap<String, Object> map) {
         return Project.builder()
@@ -148,8 +152,8 @@ public class GitlabAPI {
                 file.mkdirs();
                 FileWriter writer = new FileWriter(path + File.separator + stage + ".log");
                 int length = logData.length();
-                for (int i = 0; i < length / 100000+1; i++) {
-                    String part = logData.substring(i*100000, Math.min(i*100000+100000, length));
+                for (int i = 0; i < length / 100000 + 1; i++) {
+                    String part = logData.substring(i * 100000, Math.min(i * 100000 + 100000, length));
                     writer.write(part);
                 }
                 writer.close();
@@ -157,10 +161,47 @@ public class GitlabAPI {
             } else {
                 return null;
             }
-        }  catch (IOException e) {
+        } catch (IOException e) {
             logger.error("Error while saving log to file");
         }
         return null;
+    }
+
+    public static String getPipelineError(Integer pipelineId) {
+        String s = restClient.get("http://localhost:8080/pipelines/errors/" + pipelineId, String.class).getString();
+        return errorToString(toError(s));
+    }
+
+    private static ErrorDto toError(String data) {
+        if (data != null && !data.isBlank()) {
+            List<String> list = List.of(data.split("#\\$%"));
+
+            ErrorDto dto = ErrorDto.builder()
+                    .stage(list.get(0).split("\\$@;")[1])
+                    .log(list.get(1).split("\\$@;")[1])
+                    .command(list.get(2).split("\\$@;")[1])
+                    .type(list.get(3).split("\\$@;")[1])
+                    .build();
+            return dto;
+        } else {
+            return null;
+        }
+    }
+
+    private static String errorToString(ErrorDto dto) {
+        if (dto == null) return null;
+        StringBuilder builder = new StringBuilder();
+
+
+        builder.append("\"stage\":")
+                .append(dto.getStage()).append("\n\n\n")
+                .append("\"log\":")
+                .append(dto.getLog()).append("\n\n\n")
+                .append("\"command\":")
+                .append(dto.getCommand()).append("\n")
+                .append("\"type\":")
+                .append(dto.getType());
+        return builder.toString();
     }
 
 }

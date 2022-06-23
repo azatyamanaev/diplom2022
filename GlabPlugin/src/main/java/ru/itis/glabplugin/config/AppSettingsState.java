@@ -28,7 +28,7 @@ import java.util.List;
 public class AppSettingsState implements PersistentStateComponent<AppSettingsState> {
 
     public String accessToken = "";
-    public String classifierHost = "";
+    public String classifierHost = "http://localhost:8080";
     public LinkedHashMap<Integer, Project> projects = new LinkedHashMap<>();
     public LinkedHashMap<Integer, LinkedHashMap<Integer, Pipeline>> pipelines = new LinkedHashMap<>();
     public LinkedHashMap<Integer, List<PipelineJob>> pipelineJobs = new LinkedHashMap<>();
