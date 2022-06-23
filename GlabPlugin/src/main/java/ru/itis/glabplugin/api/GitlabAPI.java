@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.ui.Messages;
+import org.springframework.web.client.ResourceAccessException;
 import ru.itis.glabplugin.api.dto.ErrorDto;
 import ru.itis.glabplugin.api.models.Commit;
 import ru.itis.glabplugin.api.models.Pipeline;
@@ -131,7 +133,7 @@ public class GitlabAPI {
 
     public static String getJobLog(Integer projectId, Long jobId) {
         String res = restClient.get("https://gitlab.com/api/v4/projects/" + projectId + "/jobs/" + jobId + "/trace", String.class)
-                .header("PRIVATE-TOKEN", "glpat-SRzwbtymSKQfhef8P433").getString();
+                .header("PRIVATE-TOKEN", AppSettingsState.getInstance().accessToken).getString();
         if (res == null) return null;
         res = res.replace("\u001B", "")
                 .replace("[0K", "")
@@ -168,8 +170,13 @@ public class GitlabAPI {
     }
 
     public static String getPipelineError(Integer pipelineId) {
-        String s = restClient.get("http://localhost:8080/pipelines/errors/" + pipelineId, String.class).getString();
-        return errorToString(toError(s));
+        try {
+            String s = restClient.get("http://localhost:8080/pipelines/errors/" + pipelineId, String.class).getString();
+            return errorToString(toError(s));
+        } catch (ResourceAccessException e) {
+            Messages.showErrorDialog("Could not connect to host " + AppSettingsState.getInstance().classifierHost, "Error");
+            return null;
+        }
     }
 
     private static ErrorDto toError(String data) {

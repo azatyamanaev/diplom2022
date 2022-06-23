@@ -1,7 +1,6 @@
 package ru.itis.glabplugin.ui;
 
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
