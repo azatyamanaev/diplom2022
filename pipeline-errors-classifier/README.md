@@ -1,10 +1,10 @@
-# glab-plugin
+# pipeline-errors-classifier
 
 
-## Установка
+## Использование
 
-### Репозиторий плагина
-
-1. Добавьте репозиторий плагина [https://github.com/azatyamanaev/glab-plugin/releases/download/1.0.0/updatePlugins.xml](url) в IDE.
-2. Найдите через поиск плагин GlabPlugin и установите его.
-
+1. Скачать исходный код
+2. Открыть в новом проекте Intellij IDEA
+3. Указать в application.properties pipeline.monitor.token(токен доступа Gitlab), pipeline.monitor.logs-dir(каталог, в который будут сохраняться логи пайплайнов)
+4. Эндпоинты CommonController используются для заполнения БД
+5. Эндпоинты ErrorControler используются для получения ошибки конкретного пайплайна
